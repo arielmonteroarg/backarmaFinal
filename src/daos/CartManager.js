@@ -1,5 +1,5 @@
 // src/dao/CartManager.js
-import Cart from '../models/Cart.js';
+import Cart from './mongo/models/Cart.js';
 
 class CartManager {
   async getCartByUserId(userId) {

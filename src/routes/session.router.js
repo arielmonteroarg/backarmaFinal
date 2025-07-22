@@ -13,7 +13,7 @@ router.post(
   "/register",
   passport.authenticate("register", {
     session: false,
-    successRedirect: "/login",
+    successRedirect: "/api/users/login",
     failureRedirect: "/failed",
   }),
 );
