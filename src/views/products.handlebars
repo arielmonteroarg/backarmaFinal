@@ -29,28 +29,10 @@
   {{/if}}
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io();
   const list = document.getElementById('product-list');
 
-  function renderProducts(products) {
-    list.innerHTML = '';
-    products.forEach(p => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        ${p.title} - $${p.price}
-        <a href="/api/products/detalleproduct/${p._id}"><button>Ver</button></a>
-        <button onclick="modificarCarrito('${p._id}', 'agregar')">Agregar al carrito</button>
-      `;
-      list.appendChild(li);
-    });
-  }
-
-  socket.on('updateProducts', (products) => {
-    renderProducts(products);
-  });
-
+  // Función para actualizar el carrito
   function modificarCarrito(productId, accion) {
     let method = 'POST';
     let url = `/api/carts/${accion}/${productId}`;
@@ -62,4 +44,12 @@
         else alert('Error al modificar el carrito');
       });
   }
+
+  // Función opcional para refrescar la página cuando se necesite
+{{!--   function refrescarLista() {
+    window.location.reload();
+  } --}}
+
+  // Opcional: Si necesitas actualizaciones periódicas
+  // setInterval(refrescarLista, 30000); // Refresca cada 30 segundos
 </script>

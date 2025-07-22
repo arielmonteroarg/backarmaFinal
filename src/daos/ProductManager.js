@@ -1,5 +1,5 @@
 // src/dao/ProductManager.js
-import Product from '../models/Product.js';
+import Product from './mongo/models/Product.js';
 
 class ProductManager {
 

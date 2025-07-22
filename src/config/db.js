@@ -5,7 +5,7 @@ dotenv.config();
 
 const conectarDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, { dbName: "EntregaUno" });
+    await mongoose.connect(process.env.MONGO_URI, { dbName: "EntregaFinal" });
     console.log('✅ Conectado a MongoDB Atlas');
   } catch (error) {
     console.error('❌ Error al conectar a MongoDB Atlas:', error.message);

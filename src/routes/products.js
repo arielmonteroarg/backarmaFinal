@@ -1,6 +1,6 @@
 // src/routes/products.js
 import { Router } from 'express';
-import ProductManager from '../dao/ProductManager.js';
+import ProductManager from '../daos/ProductManager.js';
 import authMiddleware  from '../middlewares/auth.js';
 
 
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
     const result = await productManager.getProductsPaginated({ limit, page, sort, query });
 
 
-    res.render('home', {
+    res.render('products', {
       title: 'Página Principal',
       user: req.session.user,
       products: result.payload,          
@@ -57,11 +57,6 @@ router.get('/realtimeproducts', authMiddleware, async (req, res) => {
 });
 
 
-
-
-
-
-
 // GET producto por ID
 router.get('/detalleproduct/:id', async (req, res) => {
   try {
@@ -80,22 +75,13 @@ router.get('/detalleproduct/:id', async (req, res) => {
 });
 
 
-
-
-
 // POST agregar producto
 router.post('/', async (req, res) => {
   try {
     const newProduct = await productManager.addProduct(req.body);
-
-    // Emitir evento a todos los clientes conectados
-    const io = req.app.locals.io;
-    const products = await productManager.getProducts();
-    io.emit('updateProducts', products);
-
-    res.status(201).json(newProduct);
+    res.status(201).json(newProduct); // Respuesta simple
   } catch (error) {
-    res.status(500).json({ error: 'Error al agregar producto' });
+    res.status(500).json({ error: 'Error al agregar producto: ' + error.message });
   }
 });
 
@@ -106,16 +92,23 @@ router.put('/:pid', async (req, res) => {
     const updatedProduct = await productManager.updateProduct(pid, req.body);
 
     if (!updatedProduct) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
+      return res.status(404).json({ 
+        error: 'Producto no encontrado',
+        details: `No existe un producto con ID ${pid}`
+      });
     }
 
-    const io = req.app.locals.io;
-    const products = await productManager.getProducts();
-    io.emit('updateProducts', products);
+    res.json({
+      message: 'Producto actualizado correctamente',
+      product: updatedProduct
+    });
 
-    res.json(updatedProduct);
   } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar producto' });
+    console.error('Error en PUT /api/products:', error.message);
+    res.status(500).json({ 
+      error: 'Error al actualizar producto',
+      details: error.message 
+    });
   }
 });
 
@@ -125,18 +118,23 @@ router.delete('/:pid', async (req, res) => {
   try {
     const { pid } = req.params;
     const deletedProduct = await productManager.deleteProduct(pid);
-
     if (!deletedProduct) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
+      return res.status(404).json({ 
+        error: 'Producto no encontrado',
+        details: `No existe un producto con ID ${pid}`
+      });
     }
+    res.json({ 
+      message: 'Producto eliminado correctamente',
+      deletedProduct
+    });
 
-    const io = req.app.locals.io;
-    const products = await productManager.getProducts();
-    io.emit('updateProducts', products);
-
-    res.json({ message: 'Producto eliminado correctamente' });
   } catch (error) {
-    res.status(500).json({ error: 'Error al eliminar producto' });
+    console.error('Error en DELETE /api/products:', error.message);
+    res.status(500).json({ 
+      error: 'Error al eliminar producto',
+      details: error.message
+    });
   }
 });
 

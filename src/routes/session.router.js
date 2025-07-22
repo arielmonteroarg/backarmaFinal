@@ -36,7 +36,7 @@ router.post(
       { expiresIn: "1h" }
     );
 
-/*     req.session.user = {
+    req.session.user = {
       id: user._id,
       first_name: user.first_name,
       last_name: user.last_name,
@@ -44,7 +44,7 @@ router.post(
       email: user.email,
       role: user.role,
     };
- */
+
     res.cookie("jwtCookieToken", token, {
         httpOnly: true,
         sameSite: "strict",
