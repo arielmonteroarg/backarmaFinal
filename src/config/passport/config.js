@@ -1,6 +1,6 @@
 import passport from "passport";
 import { registerLocal, loginLocal } from "./local.strategy.js"
-import userModel from "../../daos/mongo/models/user.model.js";
+import userModel from "../../daos/mongo/models/User.js";
 
 
 import jwt from "passport-jwt"; 

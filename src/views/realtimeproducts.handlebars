@@ -1,76 +1,73 @@
-
-
 <h2>Agregar nuevo producto</h2>
 <form id="productForm">
-  <input type="text" name="title" placeholder="Nombre" required>
-  <input type="text" name="description" placeholder="Descripción" required>
-  <input type="text" name="code" placeholder="Código" required>
-  <input type="number" name="price" placeholder="Precio" required>
-  <input type="number" name="stock" placeholder="Stock" required>
-  <input type="text" name="category" placeholder="Categoría" required>
-  <input type="text" name="thumbnails" placeholder="Thumbnail (URL)">
+  <input name="title"       placeholder="Nombre"        required>
+  <input name="description" placeholder="Descripción"   required>
+  <input name="code"        placeholder="Código"        required>
+  <input name="price"       placeholder="Precio"        type="number" required>
+  <input name="stock"       placeholder="Stock"         type="number" required>
+  <input name="category"    placeholder="Categoría"     required>
+  <input name="thumbnails"  placeholder="Thumbnail URL">
   <button type="submit">Agregar</button>
 </form>
 
 <h2>Lista de Productos en Tiempo Real</h2>
-
 <ul id="product-list">
   {{#each products}}
     <li>
-      {{this._id}} - {{this.title}} - {{this.stock}} - ${{this.price}}
-      <button onclick="deleteProduct('{{this._id}}')">Eliminar</button>
+      {{title}} – {{stock}} unidades – ${{price}}
+      <button onclick="deleteProduct('{{_id}}')">Eliminar</button>
+      <a href="/products/detalleproduct/{{_id}}"><button>Ver</button></a>
     </li>
   {{/each}}
 </ul>
 
 <div class="pagination">
   {{#if hasPrevPage}}
-    <a href="/api/products/realtimeproducts/?page={{prevPage}}"><button>Anterior</button></a>
+    <a href="/products/realtimeproducts?page={{prevPage}}">Anterior</a>
   {{/if}}
-
-  <span>Página {{currentPage}} de {{totalPages}}</span>
-
+  <span>Pág. {{currentPage}} / {{totalPages}}</span>
   {{#if hasNextPage}}
-    <a href="/api/products/realtimeproducts/?page={{nextPage}}"><button>Siguiente</button></a>
+    <a href="/products/realtimeproducts?page={{nextPage}}">Siguiente</a>
   {{/if}}
 </div>
-
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
   const socket = io();
 
-  const form = document.getElementById('productForm');
-  form.addEventListener('submit', async (e) => {
+  // CREAR
+  document.getElementById('productForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData);
-    data.status = true;
-    data.thumbnails = data.thumbnails ? [data.thumbnails] : [];
+    const body = Object.fromEntries(new FormData(e.target));
+    body.status = true;
+    body.thumbnails = body.thumbnails ? [body.thumbnails] : [];
 
-    const response = await fetch('/api/products', {
+    const res = await fetch('/api/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(body),
+      credentials: 'include'        // <-- envía la cookie
     });
 
-    if (response.ok) form.reset();
-  });
-
-  socket.on('updateProducts', (products) => {
-    const list = document.getElementById('product-list');
-    list.innerHTML = products.map(product => `
-      <li>
-        ${product._id} - ${product.title} - ${product.stock} - $${product.price}
-        <button onclick="deleteProduct('${product._id}')">Eliminar</button>
-      </li>
-    `).join('');
-  });
-
-  async function deleteProduct(productId) {
-    if (confirm('¿Eliminar este producto?')) {
-      const response = await fetch(`/api/products/${productId}`, { method: 'DELETE' });
-      if (!response.ok) console.error('Error al eliminar');
+    if (res.ok) {
+      e.target.reset();
+      location.reload();
+    } else {
+      alert(await res.text());
     }
+  });
+
+  // ELIMINAR
+  async function deleteProduct(id) {
+    if (!confirm('¿Eliminar?')) return;
+    const res = await fetch(`/api/products/${id}`, {
+      method: 'DELETE',
+      credentials: 'include'        // <-- envía la cookie
+    });
+    if (res.ok) location.reload();
+    else alert(await res.text());
   }
+
+  // Actualización vía socket (si usas websocket)
+  socket.on('updateProducts', () => location.reload());
 </script>

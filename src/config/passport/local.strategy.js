@@ -1,5 +1,5 @@
 import { Strategy } from "passport-local";
-import userModel from "../../daos/mongo/models/user.model.js";
+import userModel from "../../daos/mongo/models/User.js";
 import cartModel from "../../daos/mongo/models/cart.model.js";
 import { createHash, isValidPassword } from "../../utils.js";
 

@@ -5,7 +5,7 @@ import passport from "passport";
 
 const router = Router();
 
-router.get("/", passport.authenticate("jwt", { session: false, failureRedirect: "/login" }), isAdmin,  async (req, res) => {
+router.get("/", passport.authenticate("jwt", { session: false, failureRedirect: "/api/users/login" }), isAdmin,  async (req, res) => {
    try {
     const users = await userModel.find().lean(); 
     res.render("users", { title: "Usuarios", users });

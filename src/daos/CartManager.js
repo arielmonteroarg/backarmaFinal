@@ -1,25 +1,32 @@
 // src/dao/CartManager.js
 import Cart from './mongo/models/Cart.js';
+import { CartDTO, CartItemDTO } from '../dtos/cart.dto.js';
 
 class CartManager {
   async getCartByUserId(userId) {
     if (!userId) throw new Error('Falta userId para buscar el carrito');
-
-    return await Cart.findOne({ userId })
+    
+    const cart = await Cart.findOne({ userId })
       .populate('products.product')
       .lean();
+      
+    return cart ? new CartDTO(cart) : null;
   }
 
-  async createCart(userId) {
+
+    async createCart(userId) {
     if (!userId) throw new Error('Falta userId para crear carrito');
-    return await Cart.create({ userId, products: [] });
+    const newCart = await Cart.create({ userId, products: [] });
+    return new CartDTO(newCart);
   }
 
-  async addProduct(userId, productId) {
-    let cart = await this.getCartByUserId(userId);
+   async addProduct(userId, productId) {
+    let cart = await Cart.findOne({ userId });
     if (!cart) cart = await this.createCart(userId);
 
-    const existing = cart.products.find(p => p.product._id.toString() === productId.toString());
+    const existing = cart.products.find(p => 
+      p.product._id.toString() === productId.toString()
+    );
 
     if (existing) {
       existing.quantity += 1;
@@ -27,7 +34,8 @@ class CartManager {
       cart.products.push({ product: productId, quantity: 1 });
     }
 
-    return await Cart.findOneAndUpdate({ userId }, cart, { new: true });
+    await cart.save();
+    return new CartDTO(await this.getCartByUserId(userId));
   }
 
   async updateQuantity(userId, productId, delta) {

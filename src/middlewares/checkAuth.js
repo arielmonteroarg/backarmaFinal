@@ -1,17 +1,26 @@
-// Autenticación basada en sesión
+import jwt from 'jsonwebtoken';
+import config from '../config/index.js';
+
 export const isAuthenticated = (req, res, next) => {
-  if (req.session?.user) {
-    return next();
+  const token = req.cookies.jwtCookieToken || req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No autenticado' });
+
+  try {
+    const decoded = jwt.verify(token, config.SECRET);
+    req.user = decoded;
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Token inválido' });
   }
-  res.redirect("/api/users/login"); 
 };
 
-// Autorización por rol
-export const isAdmin = (req, res, next) => {
-  const user = req.user || req.session.user; // soporte para JWT o sesión
-  if (!user || user.role !== "ADMIN") {
-     req.session.errorMessage = "Acceso restringido a administradores";
-    return res.redirect("/failed");
+export const authorize = (roles = []) => (req, res, next) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ error: 'No autenticado' });
+  if (roles.length && !roles.includes(user.role)) {
+    return res.status(403).json({ error: 'No autorizado' });
   }
   next();
 };
+
+export const isAdmin = (req, res, next) => authorize(['ADMIN'])(req, res, next);

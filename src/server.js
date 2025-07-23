@@ -1,7 +1,7 @@
 import express from "express";
 import config from "./config/index.js";
-import sessionRouter from "./routes/session.router.js";
-import usersRouter from "./routes/users.router.js";
+import sessionRouter from "./routes/session.js";
+import usersRouter from "./routes/users.js";
 import viewsRouter from "./routes/views.router.js";
 import productsRouter from './routes/products.js';
 import cartsRouter from './routes/carts.js';
@@ -90,6 +90,8 @@ server.use("/", viewsRouter);
 server.use("/api/users", usersRouter);
 server.use("/api/session", sessionRouter);
 server.use('/api/products', productsRouter);
+
+
 server.use('/api/carts', cartsRouter);
 
 // Servidor
