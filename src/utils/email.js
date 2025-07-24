@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import config from "../config/index.js";
 
 
-const { EMAIL, PASS } = config;
+const { EMAIL, PASS, FRONT_URL } = config;
 export const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
@@ -30,17 +30,21 @@ export async function sendPurchaseMail({ to, ticket }) {
     });
   }
 
+
 export const sendRecoveryMail = async ({ to, token }) => {
   const html = `
     <h2>Recuperación de contraseña</h2>
     <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
-    <a href=\"${process.env.FRONT_URL}/recover/${token}\">${process.env.FRONT_URL}/recover/${token}</a>
+    <a href="${FRONT_URL}/recover/${token}">${FRONT_URL}/recover/${token}</a>
   `;
 
   return transporter.sendMail({
-    from: `Soporte <${process.env.EMAIL}>`,
+    from: `Soporte <${EMAIL}>`,
     to,
     subject: 'Recuperación de contraseña',
     html,
   });
 };
+
+
+
