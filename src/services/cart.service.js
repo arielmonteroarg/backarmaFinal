@@ -33,6 +33,10 @@ class CartService {
   async clearCart(userId) {
     return await this.cartRepository.clearCart(userId);
   }
+
+  async createCart() {
+    return await this.cartRepository.createCart();
+  }
 }
 
 export default CartService;

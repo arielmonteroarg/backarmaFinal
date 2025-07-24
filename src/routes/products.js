@@ -13,3 +13,4 @@ router.put('/:id',     isAuthenticated, controller.updateProduct);
 router.delete('/:id',  isAuthenticated, isAdmin, controller.deleteProduct);
 
 export default router;
+

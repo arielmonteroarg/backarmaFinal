@@ -1,46 +1,27 @@
-import Product from '../daos/mongo/models/Product.js';
+import ProductDAO from '../daos/product.dao.js';
 
 export default class ProductRepository {
-  async getPaginatedProducts({ limit = 10, page = 1, sort, query }) {
-    const options = {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      lean: true
-    };
+  constructor() {
+    this.dao = new ProductDAO();
+  }
 
-    if (sort === 'asc') options.sort = { price: 1 };
-    if (sort === 'desc') options.sort = { price: -1 };
-
-    const filter = {};
-
-    if (query) {
-      if (query.startsWith('category=')) {
-        filter.category = query.split('=')[1];
-      } else if (query.startsWith('status=')) {
-        filter.status = query.split('=')[1] === 'true';
-      }
-    }
-
-    return await Product.paginate(filter, options);
+  async getPaginatedProducts(queryParams) {
+    return await this.dao.getPaginated(queryParams);
   }
 
   async getProductById(id) {
-    return await Product.findById(id).lean();
+    return await this.dao.getById(id);
   }
 
   async createProduct(productData) {
-    const newProduct = new Product(productData);
-    return await newProduct.save();
+    return await this.dao.create(productData);
   }
 
   async updateProduct(id, updateData) {
-    return await Product.findByIdAndUpdate(id, updateData, { 
-      new: true,
-      runValidators: true 
-    });
+    return await this.dao.update(id, updateData);
   }
 
   async deleteProduct(id) {
-    return await Product.findByIdAndDelete(id);
+    return await this.dao.delete(id);
   }
 }

@@ -3,7 +3,7 @@ import passport from "passport";
 import jwt from "jsonwebtoken";
 import config from "../config/index.js";
 
-const { SECRET, SECRET_EXPIRES_IN } = config;
+const { SECRET, TOKEN_EXPIRES_IN } = config;
 const router = Router();
 
 // Registro de usuario
@@ -41,7 +41,7 @@ router.post("/login", (req, res, next) => {
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       SECRET,
-      { expiresIn: SECRET_EXPIRES_IN }
+      { expiresIn: TOKEN_EXPIRES_IN }
     );
 
     const cookieOptions = {

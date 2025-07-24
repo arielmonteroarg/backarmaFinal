@@ -1,20 +1,22 @@
 import { Strategy } from "passport-local";
 import userModel from "../../daos/mongo/models/User.js";
-import cartModel from "../../daos/mongo/models/cart.model.js";
+import CartService from "../../services/cart.service.js";   
 import { createHash, isValidPassword } from "../../utils.js";
 
-
-
+const cartService = new CartService();                      
 
 async function verifyRegister(req, username, password, done) {
   const { first_name, last_name, age, role } = req.body;
   try {
     const userFound = await userModel.findOne({ email: username });
-    if (userFound){
+    if (userFound) {
       req.session.errorMessage = "User already exists";
       return done(null, false, { message: "User already exists" });
-    } 
-     const newCart = await cartModel.create({ products: [] });
+    }
+
+    // crear carrito vía servicio
+    const newCart = await cartService.createCart();     
+
     const newUser = {
       first_name,
       last_name,
@@ -22,21 +24,20 @@ async function verifyRegister(req, username, password, done) {
       role,
       password: createHash(password),
       email: username,
-      cart: newCart._id,
+      cart: newCart.id,
     };
     const newDoc = await userModel.create(newUser);
-    return done(null, newDoc)
+    return done(null, newDoc);
   } catch (error) {
     console.error(error);
     return done("Internal server error (view console)");
   }
 }
 
-
 async function verifyLogin(username, password, done) {
   try {
     const user = await userModel.findOne({ email: username }).lean();
-     if (!user) {
+    if (!user) {
       return done(null, false, { message: "Error Al iniciar Session: Credenciales Invalidas." });
     }
     if (!isValidPassword(user, password)) {
@@ -49,5 +50,8 @@ async function verifyLogin(username, password, done) {
   }
 }
 
-export const registerLocal = new Strategy({ usernameField: "email", passReqToCallback: true }, verifyRegister);
+export const registerLocal = new Strategy(
+  { usernameField: "email", passReqToCallback: true },
+  verifyRegister
+);
 export const loginLocal = new Strategy({ usernameField: "email" }, verifyLogin);

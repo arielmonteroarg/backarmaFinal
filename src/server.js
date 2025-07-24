@@ -2,7 +2,6 @@ import express from "express";
 import config from "./config/index.js";
 import sessionRouter from "./routes/session.js";
 import usersRouter from "./routes/users.js";
-import viewsRouter from "./routes/views.router.js";
 import productsRouter from './routes/products.js';
 import cartsRouter from './routes/carts.js';
 import checkoutRouter from './routes/checkout.router.js';
@@ -88,7 +87,7 @@ server.use((req, res, next) => {
 
 
 // Rutas
-server.use("/", viewsRouter);
+
 server.use("/api/users", usersRouter);
 server.use("/api/session", sessionRouter);
 server.use('/api/products', productsRouter);
