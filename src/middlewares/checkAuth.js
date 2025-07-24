@@ -7,7 +7,11 @@ export const isAuthenticated = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, config.SECRET);
-    req.user = decoded;
+    req.user = {
+      _id: decoded.id,
+      email: decoded.email,
+      role: decoded.role
+    };
     next();
   } catch {
     return res.status(401).json({ error: 'Token inválido' });

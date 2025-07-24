@@ -9,25 +9,23 @@ class CartRepository {
   }
 
   async createCart(userId) {
-    const newCart = await Cart.create({ userId, products: [] });
-    return new CartDTO(newCart);
+    return await Cart.create({ userId, products: [] }); // devolvés documento Mongoose
   }
-
+  
   async addProduct(userId, productId) {
     let cart = await Cart.findOne({ userId });
-    if (!cart) cart = await this.createCart(userId);
-
+    if (!cart) cart = await this.createCart(userId); // ya no hay problema
+  
     const existing = cart.products.find(p => p.product.toString() === productId);
     if (existing) {
       existing.quantity += 1;
     } else {
       cart.products.push({ product: productId, quantity: 1 });
     }
-
+  
     await cart.save();
-    return await this.getCartByUserId(userId);
+    return await this.getCartByUserId(userId); // aquí sí usás el DTO
   }
-
   async updateQuantity(userId, productId, delta) {
     const cart = await Cart.findOne({ userId });
     if (!cart) throw new Error('Carrito no encontrado');

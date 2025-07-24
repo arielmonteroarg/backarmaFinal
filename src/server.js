@@ -5,6 +5,7 @@ import usersRouter from "./routes/users.js";
 import viewsRouter from "./routes/views.router.js";
 import productsRouter from './routes/products.js';
 import cartsRouter from './routes/carts.js';
+import checkoutRouter from './routes/checkout.router.js';
 import hbs from "express-handlebars";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -90,8 +91,7 @@ server.use("/", viewsRouter);
 server.use("/api/users", usersRouter);
 server.use("/api/session", sessionRouter);
 server.use('/api/products', productsRouter);
-
-
+server.use('/api/checkout', checkoutRouter);
 server.use('/api/carts', cartsRouter);
 
 // Servidor

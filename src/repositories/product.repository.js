@@ -1,4 +1,4 @@
-import Product from '../daos/mongo/models/product.js';
+import Product from '../daos/mongo/models/Product.js';
 
 export default class ProductRepository {
   async getPaginatedProducts({ limit = 10, page = 1, sort, query }) {
